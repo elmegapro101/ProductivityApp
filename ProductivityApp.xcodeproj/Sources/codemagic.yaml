@@ -5,7 +5,7 @@ workflows:
     max_build_duration: 120
     environment:
       vars:
-        XCODE_PROJECT: "ProductivityApp.xcodeproj"  # Si usas .xcodeproj
+        XCODE_PROJECT: "ProductivityApp.xcodeproj"
         XCODE_SCHEME: "ProductivityApp"
         XCODE_ARCHIVE_PATH: "$HOME/build/ProductivityApp.xcarchive"
       flutter: stable
