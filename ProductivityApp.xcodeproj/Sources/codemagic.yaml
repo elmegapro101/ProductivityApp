@@ -1,26 +1,33 @@
 workflows:
-  ios-workflow:
+  ios-build:
     name: iOS Build
     instance_type: mac_mini_m1
-    max_build_duration: 60
+    max_build_duration: 120
     environment:
-      groups:
-        - app_store_credentials
       vars:
-        XCODE_WORKSPACE: "ProductivityApp.xcodeproj"
+        XCODE_PROJECT: "ProductivityApp.xcodeproj"  # Si usas .xcodeproj
         XCODE_SCHEME: "ProductivityApp"
-        BUNDLE_ID: "com.tunombre.habitTracker"
+        XCODE_ARCHIVE_PATH: "$HOME/build/ProductivityApp.xcarchive"
+      flutter: stable
     scripts:
-      - name: Instalar dependencias
+      - name: Install dependencies
         script: |
-          brew install cocoapods
-          pod install
-      - name: Compilar app iOS
+          brew install cocoapods || echo "CocoaPods ya instalado"
+          pod install --repo-update || echo "Pods ya instalados"
+      - name: Build iOS app
         script: |
-          xcodebuild -workspace "$XCODE_WORKSPACE" \
-                     -scheme "$XCODE_SCHEME" \
-                     -sdk iphoneos \
-                     -configuration Release \
-                     archive -archivePath build/ProductivityApp.xcarchive
+          xcodebuild -project $XCODE_PROJECT \
+            -scheme $XCODE_SCHEME \
+            -sdk iphoneos \
+            -configuration Release \
+            archive -archivePath $XCODE_ARCHIVE_PATH
+      - name: Export .ipa
+        script: |
+          xcodebuild -exportArchive \
+            -archivePath $XCODE_ARCHIVE_PATH \
+            -exportOptionsPlist ExportOptions.plist \
+            -exportPath $HOME/build/ios_output
     artifacts:
-      - build/**/*.ipa
+      - $HOME/build/ios_output/*.ipa
+      - $HOME/build/ios_output/*.dSYM.zip
+      - $HOME/build/ProductivityApp.xcarchive
