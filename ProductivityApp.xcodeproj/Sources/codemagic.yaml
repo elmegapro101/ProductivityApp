@@ -1,0 +1,26 @@
+workflows:
+  ios-workflow:
+    name: iOS Build
+    instance_type: mac_mini_m1
+    max_build_duration: 60
+    environment:
+      groups:
+        - app_store_credentials
+      vars:
+        XCODE_WORKSPACE: "ProductivityApp.xcodeproj"
+        XCODE_SCHEME: "ProductivityApp"
+        BUNDLE_ID: "com.tunombre.habitTracker"
+    scripts:
+      - name: Instalar dependencias
+        script: |
+          brew install cocoapods
+          pod install
+      - name: Compilar app iOS
+        script: |
+          xcodebuild -workspace "$XCODE_WORKSPACE" \
+                     -scheme "$XCODE_SCHEME" \
+                     -sdk iphoneos \
+                     -configuration Release \
+                     archive -archivePath build/ProductivityApp.xcarchive
+    artifacts:
+      - build/**/*.ipa
